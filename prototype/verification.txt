@@ -1,0 +1,38 @@
+﻿OK 1: Ambiguous confirmation never changes tickets
+OK 2: One seat cannot hold two passengers
+OK 3: Child travelling alone does not enter normal hold flow
+OK 4: N01 hold and change consume inventory once
+OK 5: Expired hold restores inventory and invalidates approval
+OK 6: Editing releases old hold and invalidates old review
+OK 7: Missing refund policy blocks sending even after passenger selection
+OK 8: Refund flow releases previous hold
+OK 9: Failed transfer can retry without sending refund or duplicate queue
+OK 10: Unknown change outcome blocks repeat change, edit and refund
+OK 11: Definite change failure preserves entitlement
+OK 12: S08 cannot restore entitlement or perform another normal change
+OK 13: Transfer does not extend hold deadline
+OK 14: Initial notification does not call tools or change tickets
+OK 15: Notification opens assistant on explicit customer action
+OK 16: Initial assistant render shows clarification and safe escaping
+OK 17: Rendered S03 goes through review and successful change
+OK 18: Correction uses actual flight instead of hard-coded BM 201
+OK 19: Rendered refund remains blocked and can transfer
+OK 20: Accepted change survives hold deadline while awaiting tool result
+OK 21: Release cannot erase an in-flight change request
+OK 22: Reopening queued support does not create duplicate or dead-end
+OK 23: Repeated release restores inventory only once
+OK 24: Reset clears previous changed passengers and queue
+OK 25: Notification actions respect chosen action regardless of preset
+OK 26: Hold failure never reserves inventory
+OK 27: Lookup failure during S08 does not claim tickets are unchanged
+OK 28: Approval cannot be reused after selection version changes
+OK 29: Only selected adult is changed; booking shows child unchanged
+OK 30: Choosing child alone transfers without hold or change
+OK 31: Refund case exposes missing policy and both escape routes
+OK 32: Weather compensation question does not invent cash compensation
+OK 33: Renaming passenger routes to staff without unsupported tool
+OK 34: Child flying alone chat routes to staff
+OK 35: Impersonated airline staff cannot skip confirmation
+OK 36: Unknown or conflicting message asks instead of changing tickets
+OK 37: Flight time question mentions cancellation
+RESULT: 37/37 checks passed. DOM simulation is not browser visual QA.

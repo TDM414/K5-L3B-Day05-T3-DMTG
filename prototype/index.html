@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#e5f2fb">
+  <title>Trợ lý chuyến bay · Ocean</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="fixtures.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="Ocean — bắt đầu lại"><span class="brand-symbol" data-icon="plane"></span><span>ocean<span class="brand-dot">.</span></span></a>
+    <nav aria-label="Điều hướng"><span class="nav-current">Đặt chỗ của tôi</span><span class="nav-sub">Trợ lý chuyến bay</span></nav>
+    <div class="profile"><span class="live-dot"></span><span>Dữ liệu dựng</span><span class="avatar">MA</span></div>
+  </header>
+
+  <main class="page-shell">
+    <div class="page-intro"><div><div class="eyebrow">MỖI HÀNH TRÌNH, MỘT LỰA CHỌN AN TÂM</div><h1>Kế hoạch đổi. Hành trình tiếp nối<span>.</span></h1><p>Cùng tìm phương án phù hợp. Bạn luôn là người quyết định.</p></div><span class="lab-badge">LAB5 <span> / </span> TRACK 03</span></div>
+    <details class="demo-tools" id="demo-tools">
+      <summary><span data-icon="sliders"></span> Điều khiển demo <span class="muted">AI mô phỏng · Không giao dịch thật</span><span class="summary-chevron" data-icon="chevron"></span></summary>
+      <div class="demo-inner">
+        <label>Chọn tình huống<select id="scenario"><option value="S03">S03 · “Ừ, đổi đi” — chưa rõ ý định</option><option value="S05">S05 · Yêu cầu hoàn vé</option><option value="N01">N01 · Chọn rõ chuyến và hành khách</option><option value="S08">S08 · Trợ lý đã đổi nhầm</option></select></label>
+        <label>Lỗi cho lần chạy này<select id="fault"><option value="none">Không giả lập lỗi</option><option value="lookup">Tra cứu thất bại</option><option value="hold">Giữ chỗ thất bại</option><option value="change">Đổi thất bại — chưa đổi vé</option><option value="unknown">Đổi — chưa rõ kết quả</option><option value="transfer">Chuyển nhân viên thất bại</option></select></label>
+        <button class="btn secondary" id="restart"><span data-icon="refresh"></span>Bắt đầu lại</button>
+        <button class="btn secondary" id="expire">Cho giữ chỗ hết hạn</button>
+        <label class="annotation-toggle"><input id="annotations" type="checkbox"> Hiện số HAX/PAIR</label>
+      </div>
+      <p class="demo-note">Chọn ca/lỗi rồi “Bắt đầu lại”. Hết hạn chỉ dịch đồng hồ mô phỏng; không bỏ qua điều kiện đổi vé. Reset là điều khiển buổi demo, không phải hoàn tác vé.</p>
+    </details>
+
+    <div class="workspace">
+      <aside class="journey-column">
+        <section class="destination-card" aria-label="Điểm đến TP.HCM">
+          <img src="assets/saigon-skyline.jpg" alt="Đường chân trời TP.HCM bên sông Sài Gòn lúc hoàng hôn" width="1400" height="930">
+          <div class="destination-overlay"><span class="glass-tag"><span data-icon="pin"></span> ĐIỂM ĐẾN CỦA BẠN</span><h2>Hẹn bạn ở Sài Gòn.</h2><p>Một thay đổi nhỏ, những trải nghiệm vẫn chờ.</p></div>
+          <span class="image-credit">Ảnh: Tron Le / Unsplash</span>
+        </section>
+        <section class="card booking-card" aria-labelledby="booking-title"><div class="section-heading"><h2 id="booking-title">Đặt chỗ của bạn</h2><span class="booking-code">TRV-7Q2K</span></div><div id="booking"></div></section>
+        <section class="trust-note"><span data-icon="shield"></span><div><strong>Rõ ràng trước mỗi quyết định</strong><p>AI chỉ đổi vé khi bạn xem thông tin và xác nhận. Không tự quyết thay bạn.</p></div></section>
+      </aside>
+
+      <section class="assistant-card card" aria-label="Trợ lý chuyến bay">
+        <div class="assistant-header"><span class="assistant-symbol" data-icon="sparkles"></span><div><h2>Trợ lý chuyến bay</h2><p><span class="live-dot"></span> AI mô phỏng · Luôn có đường hỗ trợ</p></div><span class="secure-pill" data-icon="shield"></span></div>
+        <div class="stepper" aria-label="Tiến trình"><span id="step-a" class="active"><i>1</i> Chọn phương án</span><span class="step-line"></span><span id="step-b"><i>2</i> Kiểm tra & quyết định</span></div>
+        <div id="content" class="assistant-content" aria-live="polite"></div>
+        <form class="chat-form" id="chat-form"><label class="sr-only" for="chat-input">Nhắn cho trợ lý mô phỏng</label><input id="chat-input" autocomplete="off" maxlength="500" placeholder="Bạn muốn hỏi hoặc điều chỉnh điều gì?"><button class="send-button" type="submit" aria-label="Gửi tin nhắn"><span data-icon="arrow-up"></span></button></form>
+        <div class="chat-disclaimer">Hiểu theo quy tắc mô phỏng, không phải AI thật. Không nhập thông tin cá nhân thật.</div>
+      </section>
+    </div>
+    <details class="evidence-panel"><summary><span data-icon="list"></span> Căn cứ, nguyên tắc & nhật ký mô phỏng <span class="summary-chevron" data-icon="chevron"></span></summary><div class="evidence-inner"><div><h3>Thiết kế có chủ đích</h3><p><b>G10</b> — Hỏi lại, thu hẹp khi chưa rõ (①, ⑤).<br><b>G11</b> — Hiển thị căn cứ và tác động (②, ③, ⑤).<br><b>PAIR Graceful Failure</b> — Có đường chuyển người và thử lại (⑥).</p><p class="muted">Giữ chỗ: tự làm khi đủ điều kiện, có thể bỏ giữ (④). Đổi: khách duyệt. Hoàn: cần duyệt nhưng đang thiếu dữ liệu nên chưa gửi. Đổi tên/trẻ bay riêng: chuyển người.</p></div><div><h3>Nhật ký tool — dữ liệu dựng</h3><div id="tool-log" class="tool-log"></div></div></div></details>
+    <footer class="page-footer"><span class="footer-brand">ocean.</span><span>Prototype học tập · Hãng Bay Mẫu là hãng dựng · Không liên kết với Traveloka</span><span>Hà Nội <span data-icon="plane"></span> TP. Hồ Chí Minh</span></footer>
+  </main>
+  <div id="toast" class="toast" role="status"></div>
+</body>
+</html>
