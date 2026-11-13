@@ -11,10 +11,10 @@
 
 | STT | Họ và tên | Mã sinh viên | Tài khoản GitHub | Vai trò trong nhóm | Phần việc phụ trách chính trong Lab 5 |
 |:---:|---|:---:|:---:|---|---|
-| 1 | **Trần Duy Mạnh** | 2A202603998 | `TDM414` | Nhóm trưởng · Kiến trúc hệ thống | Chịu trách nhiệm chính §1 (Lát cắt & Phạm vi), §4 (Ma trận mức tự chủ), Quản trị Git & Kiến trúc Prototype |
-| 2 | **Đinh Lê Thịnh** | 2A202603953 | `thinh` | Phản biện chính · Phân tích an toàn | Chịu trách nhiệm chính §2 (Kịch bản rủi ro 4 lớp), Phân tích chi phí sai số (Cost-of-Error) & 2 kịch bản đắt nhất |
-| 3 | **Nguyễn Xuân Dương** | 2A202603955 | `xuanduong2k5` | Thiết kế UX/UI · Nguyên tắc HAX/PAIR | Chịu trách nhiệm chính §3 (Trải nghiệm khi AI sai), §5 (Đặc tả Prototype & Đánh số HAX/PAIR), Code giao diện |
-| 4 | **Trần Thị Hồng Gấm** | 2A202603967 | `Cactus_2995` | Kiểm chứng dữ liệu · Đánh giá chất lượng | Chịu trách nhiệm chính §6 (Tiêu chí Pass/Fail), §7 (Kịch bản Demo & Ứng phó ca lạ), Kiểm tra chéo dữ liệu fixture |
+| 1 | **Trần Duy Mạnh** | 2A202603998 | `TDM414` | Nhóm trưởng · Kiến trúc hệ thống | Chọn lát cắt; viết các tình huống người dùng và xác định hai ca AI sai nguy hiểm nhất. |
+| 2 | **Đinh Lê Thịnh** | 2A202603953 | `ThinkLee04` | Xếp từng hành động của AI vào “tự làm / cần người duyệt / cấm”; giải thích theo hậu quả nếu sai. |
+| 3 | **Nguyễn Xuân Dương** | 2A202603955 | `xuanduong2k5` | Thiết kế AI sẽ nói gì, người dùng thấy gì và có thể làm gì tiếp theo khi AI không chắc hoặc sai |
+| 4 | **Trần Thị Hồng Gấm** | 2A202603967 | `Honggam1109` | Dựng prototype 1–2 màn hình cho ca khó nhất; ghép các phần vào spec.md và chuẩn bị demo. |
 
 ---
 
@@ -77,5 +77,93 @@ Hệ thống nhận diện và bao phủ tối thiểu 8 kịch bản thuộc đ
 #### 3. Kịch bản suýt được chọn và lý do loại trừ: KB8 (Khách báo trợ lý đổi nhầm vé)
 - **Lý do suýt chọn:** Đây là tình huống xảy ra rất thường xuyên khi người dùng thao tác vội vã trên điện thoại.
 - **Lý do nhóm quyết định KHÔNG chọn làm Top 2:** KB8 là *hậu quả phái sinh (downstream symptom)* của việc thiết kế kém ở khâu xác nhận đổi vé. Nếu hệ thống làm tốt việc chặn lỗi ở KB3 và KB4 (bắt buộc giữ chỗ 20 phút và hiển thị thẻ tóm tắt chi tiết trước khi xác nhận), xác suất xảy ra KB8 sẽ giảm tới 95%. Do đó, tập trung nguồn lực vào KB3 và KB7 giải quyết bài toán tận gốc rễ (root cause prevention).
+
+---
+
+## §4. MA TRẬN MỨC TỰ CHỦ (LEVELS OF AUTONOMY — CHẶNG 4 · MỐC M2 · 25 ĐIỂM)
+
+### 4.1. Phân loại mức tự chủ cho 5 công cụ dựa trên Chi phí sai số (Cost-of-Error)
+
+| Tên công cụ (Tool) | Bản chất kỹ thuật | Chi phí sai số nếu AI làm sai (Cost-of-Error) | Khả năng đảo ngược | Mức tự chủ phê duyệt | Người phê duyệt & Trải nghiệm |
+|---|---|---|:---:|:---:|---|
+| `tra_cuu_dat_cho` | Đọc dữ liệu đặt chỗ, hành khách, chuyến thay thế | **Bằng 0.** Chỉ đọc dữ liệu trong bộ nhớ đệm hoặc API tra cứu, không làm thay đổi trạng thái thế giới thực. | Hoàn toàn đảo ngược | **Tự làm (Autonomous · Mức 3)** | AI tự động thực hiện ngay khi mở giao diện hoặc nhận tin nhắn. |
+| `giu_cho_chuyen_moi` | Giữ chỗ tạm thời trên chuyến mới trong 20 phút | **Rất thấp.** Nếu giữ nhầm, sau 20 phút chỗ tự động nhả ra kho vé chung. Nếu bắt người dùng duyệt mới giữ thì người khác sẽ đặt mất vé tốt. | Hoàn toàn đảo ngược (Hết 20 phút tự huỷ) | **Tự làm (Autonomous · Mức 3)** | AI tự động giữ ngay chuyến khả dĩ nhất, hiển thị đồng hồ đếm ngược trên giao diện cho khách thấy. |
+| `doi_chuyen_bay` | Đổi vé chính thức, tiêu tốn lượt đổi miễn phí duy nhất | **Rất đắt.** Làm mất lượt đổi miễn phí duy nhất của khách; nếu đổi sai chuyến thì muốn đổi lại sẽ mất phí chênh lệch lớn hoặc hết chỗ. | **Khó / Không thể** (Phải xin đặc cách hãng) | **Cần người duyệt (Human Confirmation · Mức 2)** | **Hành khách tự duyệt:** Khách thấy thẻ tóm tắt chuyến bay, danh sách hành khách, bấm nút `Xác nhận đổi vé`. |
+| `gui_yeu_cau_hoan_ve` | Gửi yêu cầu hoàn tiền vé lên hãng hàng không | **Cực kỳ đắt.** Hãng bay quy định gửi rồi không thể rút lại. Mất quyền bay, tiền bị giam tới 90 ngày. | **Hoàn toàn KHÔNG THỂ đảo ngược** | **Cần người duyệt nghiêm ngặt (Strict Confirmation · Mức 2+)** | **Hành khách duyệt qua Modal 2 bước:** Phải tích chọn ô cam kết hiểu rõ hệ quả không thể đảo ngược mới mở khoá nút gửi. |
+| `chuyen_nhan_vien` | Chuyển phiên làm việc cho nhân viên tổng đài | **Thấp.** Chuyển thừa chỉ tốn công nhân viên; nếu chuyển thiếu hoặc chậm thì khách hàng bị kẹt trong bão. | Hoàn toàn đảo ngược | **Tự làm (Autonomous · Mức 3)** | AI tự động chuyển khi phát hiện rủi ro cao (trẻ em đi một mình, khách khiếu nại gay gắt) hoặc khi khách chủ động bấm nút. |
+
+### 4.2. Phân tích công cụ khó xếp mức nhất: `doi_chuyen_bay`
+- **Sự giằng co giữa các phương án:**
+  - *Luồng ý kiến 1 (Ủng hộ Tự làm + Hoàn tác - Mức 3):* Cho rằng trong hoàn cảnh hoảng loạn vì bão, AI cần đổi vé ngay lập tức cho khách trong 1 giây để "giật vé" trước khi người khác đặt mất. Nếu sai thì cho khách bấm nút "Hoàn tác" trong 5 phút.
+  - *Luồng ý kiến 2 (Ủng hộ Cần khách xác nhận - Mức 2):* Cho rằng nút hoàn tác đối với vé máy bay là **bất khả thi về mặt kỹ thuật và nghiệp vụ hàng không**. Khi API hãng đã phát hành vé điện tử mới, việc hoàn tác đòi hỏi nghiệp vụ huỷ vé phức tạp, chuyến bay cũ có thể đã bị người khác lấp chỗ, và lượt đổi miễn phí đã bị ghi nhận tiêu hao trên hệ thống vé điện tử.
+- **Cái giá phải trả nếu chọn sai:**
+  - Nếu để Mức 3: Gặp kịch bản mơ hồ như KB3, AI tự ý đổi vé sang chuyến 21:00 chỉ còn 1 chỗ, lập tức đẩy gia đình vào thảm hoạ chia cắt người thân. Đến lúc khách bấm "Hoàn tác" thì chuyến sáng mai đã bị người khác lấy mất, vé cũ đã bị huỷ. Thiệt hại không thể cứu vãn.
+- **Quyết định chốt của nhóm:** **CHỌN MỨC 2 (CẦN KHÁCH XÁC NHẬN) KẾT HỢP TÁCH BƯỚC THÔNG MINH.**  
+  Để giải quyết nỗi lo "bị người khác đặt mất vé trong lúc chờ suy nghĩ", hệ thống thiết kế cơ chế phân tách:
+  $$\text{Quy trình} = \underbrace{\text{giu\_cho\_chuyen\_moi (Tự động · Giữ chỗ 20 phút)}}_{\text{Giải quyết tốc độ}} \longrightarrow \underbrace{\text{doi\_chuyen\_bay (Chờ khách bấm xác nhận)}}_{\text{Giải quyết an toàn}}$$
+  Nhờ đó, khách hàng có trọn vẹn 20 phút an tâm đọc kỹ thông tin mà chỗ ngồi đã được bảo đảm 100%, loại bỏ hoàn toàn áp lực thời gian mà vẫn an toàn tuyệt đối.
+
+### 4.3. Thử nghiệm bộ mức tự chủ trên 3 kịch bản thực tế
+
+```markdown
+1. Thử nghiệm trên Kịch bản đắt nhất #1 (KB3 · Khách đòi đổi gấp tối nay, BM 217 còn 1 chỗ):
+   - Cái sai có bị chặn không? CÓ. AI bị chặn quyền tự gọi doi_chuyen_bay. Khi quét thấy BM 217 chỉ có 1 chỗ, guardrail chặn lệnh đổi vé.
+   - Còn việc nào tự ý làm khi lẽ ra phải hỏi không? KHÔNG. AI chỉ tự động gọi giu_cho_chuyen_moi trên chuyến sáng mai BM 201 (việc an toàn có thể tự nhả) và hỏi lại khách.
+   - Người dùng có bị đẩy vào tình thế nguy hiểm không? KHÔNG. Hai mẹ con được đảm bảo có chỗ sáng mai, không bị chia tách ban đêm.
+
+2. Thử nghiệm trên Kịch bản đắt nhất #2 (KB7 · Khách bộc phát đòi hoàn tiền):
+   - Cái sai có bị chặn không? CÓ. AI bị cấm tự gọi gui_yeu_cau_hoan_ve.
+   - Hành động bộc phát có bị ngăn chặn không? CÓ. Hộp thoại 2 bước và ô kiểm cam kết bắt buộc người dùng dừng lại 5 giây để đọc rõ cảnh báo mất vé và thời gian chờ 90 ngày.
+
+3. Thử nghiệm trên Kịch bản bình thường (Khách nhắn: "Đổi giúp mình sang chuyến 9h30 sáng mai nhé"):
+   - Người dùng bình thường có phải chờ đợi vô ích không? KHÔNG.
+   - Trải nghiệm diễn ra mượt mà: AI tra cứu thấy BM 205 (09:30, 13/11) còn 4 chỗ (đủ cho 2 người) -> Tự động giữ 2 chỗ ngay trong 0.5 giây -> Hiển thị thẻ tóm tắt -> Khách chỉ cần bấm duy nhất 1 chạm vào nút "Xác nhận đổi vé" là vé mới được xuất ngay.
+```
+
+### 4.4. Lời hứa sản phẩm (Product Promise) thay đổi tương ứng theo từng mức tự chủ
+- **Ở Mức 1 (Chỉ gợi ý · Khách tự làm thủ công):**  
+  *"Chúng tôi cung cấp thông tin chuyến bay thay thế; bạn vui lòng tự vào trang quản lý vé để thao tác từng bước."*  
+  → *Đánh giá:* An toàn nhưng vô cảm, trải nghiệm chậm chạp, không bảo vệ được khách trước nguy cơ hết vé.
+- **Ở Mức 2 (Cần người duyệt · Mức nhóm DMTG lựa chọn chuẩn):**  
+  *"Chúng tôi giữ chỗ an toàn ngay lập tức cho bạn trong 20 phút; bạn kiểm tra thông tin và chỉ cần bấm một chạm để hoàn tất."*  
+  → *Đánh giá:* Cân bằng hoàn hảo giữa **Tốc độ bảo vệ slot** và **Quyền kiểm soát tối thượng của con người**.
+- **Ở Mức 3 (Tự làm toàn bộ + Hoàn tác):**  
+  *"Chúng tôi tự động đổi vé ngay cho bạn; nếu không ưng ý, bạn có thể bấm hoàn tác."*  
+  → *Đánh giá:* Lời hứa dối trá và vô trách nhiệm trong ngành hàng không, vì vé máy bay không thể hoàn tác tuỳ tiện.
+
+---
+
+## §6. TIÊU CHÍ ĐÁNH GIÁ (WHAT IS GOOD — CHẶNG 6 · 5 ĐIỂM)
+
+### 6.1. Ba tiêu chí Pass/Fail định lượng, khách quan (Objective Metrics)
+
+```
++---------------------------------------------------------------------------------------------------+
+| 3 TIÊU CHÍ KIỂM TRA ĐỊNH LƯỢNG (PASS/FAIL CRITERIA)                                              |
++---------------------------------------------------------------------------------------------------+
+| TIÊU CHÍ 1: TỶ LỆ CHẶN TÁCH TRẺ EM (CHILD SAFETY INTEGRITY)                           PASS: 100% |
+| - Điều kiện Pass: 100% kịch bản có trẻ em đi kèm KHÔNG BAO GIỜ kích hoạt doi_chuyen_bay          |
+|   vào chuyến có số chỗ trống < tổng số hành khách trong hồ sơ đặt chỗ.                            |
+| - Điều kiện Fail: Có dù chỉ 1 trường hợp AI tự đổi vé hoặc gợi ý tách riêng trẻ dưới 12 tuổi.     |
++---------------------------------------------------------------------------------------------------+
+| TIÊU CHÍ 2: TỶ LỆ BẢO VỆ THAO TÁC KHÔNG THỂ ĐẢO NGƯỢC (IRREVERSIBLE ACTION GUARD)       PASS: 100% |
+| - Điều kiện Pass: 100% yêu cầu hoàn vé BẮT BUỘC phải đi qua Modal xác nhận 2 bước kèm checkbox. |
+| - Điều kiện Fail: AI tự động gọi gui_yeu_cau_hoan_ve qua tin nhắn văn bản đơn thuần.             |
++---------------------------------------------------------------------------------------------------+
+| TIÊU CHÍ 3: HIỆU QUẢ BẢO VỆ CHỖ NGỒI (SLOT PRESERVATION LATENCY)                      PASS: < 1s  |
+| - Điều kiện Pass: Thao tác giu_cho_chuyen_moi được thực thi tự động trong < 1.0 giây             |
+|   ngay sau khi nhận diện chuyến bay hợp lệ, bảo đảm slot cho khách trong 20 phút.                |
+| - Điều kiện Fail: Bắt khách hàng phải chờ xác nhận mới bắt đầu giữ chỗ, dẫn đến nguy cơ hết vé.  |
++---------------------------------------------------------------------------------------------------+
+```
+
+### 6.2. Kết quả tự đánh giá trên 2 kịch bản đắt nhất và Lỗ hổng tiềm ẩn còn lại
+- **Đánh giá trên Kịch bản đắt nhất #1 (KB3):** **ĐẠT (PASS)**  
+  Hệ thống nhận diện ngay lập tức biến số `Nguyễn Gia Bình (5 tuổi)` và số lượng chỗ khả dụng của `BM 217 (1 chỗ)`, ngăn chặn hoàn toàn việc gọi lệnh đổi vé, tự động kích hoạt giữ chỗ `BM 201 (07:00)` trong 0.4 giây.
+- **Đánh giá trên Kịch bản đắt nhất #2 (KB7):** **ĐẠT (PASS)**  
+  Hệ thống chặn đứng lệnh hoàn vé tự động, hiển thị Modal cảnh báo điều khoản huỷ do bão không bồi thường tiền mặt, buộc khách hàng phải xác nhận chủ động qua 2 bước.
+- **Lỗ hổng tiềm ẩn còn lại (Residual Risk) & Hướng xử lý:**  
+  *Trường hợp cả 3 chuyến thay thế (BM 217, BM 201, BM 205) đều đồng loạt hết chỗ sạch:*  
+  Trong tình huống này, AI sẽ không thể thực hiện lệnh `giu_cho_chuyen_moi`. Hệ thống được lập trình sẵn phương án dự phòng (Fallback Graceful Failure): Ngay lập tức hiển thị thông báo trung thực rằng các chuyến bay sáng mai của Bay Mẫu đã kín chỗ, đưa ra lựa chọn hoàn vé toàn phần hoặc chuyển thẳng cuộc gọi sang điều phối viên hãng bay để tìm kiếm chuyến bay liên danh (Interline) với hãng hàng không khác.
 
 ---
