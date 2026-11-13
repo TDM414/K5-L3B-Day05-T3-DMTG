@@ -79,6 +79,142 @@ Hệ thống nhận diện và bao phủ tối thiểu 8 kịch bản thuộc đ
 - **Lý do nhóm quyết định KHÔNG chọn làm Top 2:** KB8 là *hậu quả phái sinh (downstream symptom)* của việc thiết kế kém ở khâu xác nhận đổi vé. Nếu hệ thống làm tốt việc chặn lỗi ở KB3 và KB4 (bắt buộc giữ chỗ 20 phút và hiển thị thẻ tóm tắt chi tiết trước khi xác nhận), xác suất xảy ra KB8 sẽ giảm tới 95%. Do đó, tập trung nguồn lực vào KB3 và KB7 giải quyết bài toán tận gốc rễ (root cause prevention).
 
 ---
+## §3. KHI AI SAI
+
+### Phạm vi và cách đọc
+
+Đây là thiết kế UX và tiêu chí mong muốn; prototype triển khai một phần. Luồng S03 đã được mở thử trên Chrome desktop đến màn kiểm tra trước xác nhận; chưa bấm xác nhận đổi vé hoặc kiểm tra hết các ca trên trình duyệt. S05 và các nhánh ngoại lệ trong phần này là yêu cầu thiết kế, không khẳng định đã hoàn tất UI/hành vi. Căn cứ là hai ca S03/S05 ở §2, bộ tool và fixture T3, guide §3 và rubric R3. Các mã UI dưới đây là vị trí dự kiến trên 1–2 màn hình; §5 liên kết ảnh thật cho một phần luồng S03, đánh số 1–4. Chưa có ảnh hoặc thông báo nào được gửi tới người thật.
+
+Lựa chọn UX trong phần này đặt yêu cầu cho bảng tự chủ §4: câu “đổi đi” không đủ để bỏ bước kiểm tra rõ chuyến/người; thiếu chính sách hoàn thì chưa gửi. §4 sẽ chốt mức của đủ 5 tool, người duyệt và cost-of-error.
+
+### S03 — “Ừ, đổi đi”: chưa rõ chuyến và hành khách
+
+**Bối cảnh:** khách vừa được xem BM 201 và BM 205 nhưng chưa chọn rõ; đặt chỗ có Nguyễn Minh An và Nguyễn Gia Bình. Chưa có thao tác đổi hoặc giữ chỗ được xác nhận thành công trong bối cảnh này.
+
+**Câu AI nguyên văn khi gặp mơ hồ — UI-01:**
+
+> “Mình chưa đổi vé. Có hai lựa chọn: BM 201 lúc 07:00 và BM 205 lúc 09:30 ngày 13/11/2026. Bạn muốn chuyến nào, và đổi cho những ai? Đổi vé sẽ dùng lần đổi miễn phí duy nhất.”
+
+**Người dùng thấy và làm tiếp:**
+
+| Vị trí / trạng thái | Nội dung người dùng thấy | Hành động và kết quả mong đợi |
+|---|---|---|
+| UI-01 — Cần làm rõ | Nhãn “Chưa rõ chuyến / hành khách”; câu AI ở trên. Không hiện phần trăm tự tin do không có số đo đáng tin. | Chọn một chuyến và hành khách; không chọn sẵn thay khách. Có nút “Gặp nhân viên”. |
+| UI-02 — Căn cứ | TRV-7Q2K; BM 213 đã huỷ; BM 201 còn 9 chỗ, BM 205 còn 4 chỗ; BM 217 còn 1 chỗ, không đủ cả hai. Hiện hai tên, tuổi và chính sách một lần đổi miễn phí trong 48 giờ. Gắn nhãn dữ liệu dựng. | Khách tự kiểm tra lựa chọn. Không dùng giờ của máy để đổi ngày trong fixture. |
+| UI-03 — Kiểm tra trước đổi | Sau khi chọn đủ thông tin và tra điều kiện hợp lệ, hiển thị chuyến cũ → mới, ngày giờ, tên từng người và tác động dùng lần đổi miễn phí duy nhất. Không điền số tiền ngoài fixture; nếu cần phí bổ sung mà chưa có dữ liệu thì dừng để xác minh. | Nút “Xác nhận đổi vé” chỉ khả dụng khi thông tin cần thiết đầy đủ. “Sửa lựa chọn” quay về bước chọn, làm mất hiệu lực xác nhận cũ. Khi đã giữ chỗ thành công, hiện thời gian còn lại; hết hạn thì tra lại trước khi tiếp tục. |
+| UI-04 — Kết quả | Khi chờ: “Đang xử lý đổi vé — chưa có kết quả.” Chỉ khi tool trả thành công mới ghi chuyến và hành khách đã đổi, lượt miễn phí đã dùng. | Không cho bấm gửi lặp trong lúc xử lý. Nếu thất bại hoặc chưa rõ kết quả thì kiểm tra trạng thái trước, không đổi lần nữa theo phỏng đoán. |
+
+**Ví dụ câu tại UI-03** khi khách đã chọn rõ BM 201 cho cả hai và điều kiện hợp lệ:
+
+> “Phương án của bạn đã sẵn sàng. Chưa đổi vé. Hãy kiểm tra ngày giờ và từng hành khách trước khi xác nhận.”
+
+Ngay dưới câu này là thẻ BM 213 → BM 201, ngày giờ và tên từng người; cảnh báo dùng lượt miễn phí duy nhất và nút “Xác nhận đổi vé” / “Sửa lựa chọn”. Đây là cách thể hiện thực tế trong code, tránh lặp lại toàn bộ nội dung thẻ trong hội thoại.
+
+Nếu chọn bé bay riêng thì đi theo S04 và chuyển nhân viên; không cho bước xác nhận thông thường tự giải quyết ca đó. Nếu khách không chọn hoặc không xác nhận, không đổi vé; nếu đã có giữ chỗ thì hết 20 phút tự nhả, không tự đổi thay khách.
+
+**Ai được báo và khi nào:**
+
+- Khách thấy trạng thái chưa đổi ngay tại bước làm rõ và kết quả sau phản hồi tool. Đây là thứ tự sự kiện của thiết kế, không phải SLA bằng số giây.
+- Không báo nhân viên cho mỗi câu mơ hồ nếu khách có thể tự làm rõ. Khi khách chọn “Gặp nhân viên”, ca vượt phạm vi hoặc lỗi không gỡ được, bắt đầu chuyển ngay tại sự kiện đó.
+- Chỉ sau phản hồi chuyển thành công mới hiện: “Trong bản mô phỏng, yêu cầu hỗ trợ đã vào hàng chờ. Chưa có thời gian phản hồi được xác nhận. Chưa có thao tác đổi vé mới từ yêu cầu chuyển này.”
+- Nhân viên nhận tóm tắt: mã đặt chỗ, hành khách, chuyến huỷ, câu khách nhắn, lựa chọn hiện tại, chỗ giữ/thời hạn nếu có, trạng thái và lỗi của thao tác đổi nếu đã phát sinh. Không ghi “đã chuyển” trước kết quả tool.
+
+**Quyết định và phương án loại:**
+
+| Phương án | Quyết định và lý do |
+|---|---|
+| Hỏi rõ bằng lựa chọn cụ thể rồi cho xem tóm tắt trước xác nhận | Chọn: một bước làm rõ trực tiếp chặn gọi `doi_chuyen_bay` theo suy đoán, vẫn để khách tự hoàn thành ca thông thường. |
+| Tự chọn chuyến sớm nhất, kèm câu “nếu sai hãy báo” | Loại: thông báo sau đổi không khôi phục lượt miễn phí hoặc chỗ trên chuyến đúng; đoán trúng cũng không chứng minh khách đã đồng ý đúng hành động. |
+| Chỉ trả lời kèm giới hạn rồi vẫn cho đổi | Loại: câu cảnh báo không thay thế dữ liệu chuyến/người còn thiếu. |
+| Chuyển nhân viên cho mọi câu “đổi đi” | Loại làm mặc định: khách có thể làm rõ ngay; chờ người có thể khiến hết chỗ. Vẫn giữ chuyển người như đường lui. |
+
+### S05 — “Huỷ hết, hoàn tiền”: thiếu thông tin trước hành động không rút được
+
+**Bối cảnh:** chưa gửi hoàn; chưa xác nhận rõ hành khách. Fixture cho phép hoàn toàn bộ nhưng chưa có tiền về đâu và thời gian xử lý. Không lấy thông tin thẻ/90 ngày từ mẫu để coi là chính sách Bay Mẫu.
+
+**Câu AI nguyên văn — UI-05:**
+
+> “Mình chưa gửi yêu cầu hoàn. Bạn muốn hoàn vé cho cả Nguyễn Minh An và Nguyễn Gia Bình phải không? Yêu cầu gửi rồi không huỷ được. Theo dữ liệu Bay Mẫu, chuyến huỷ do thời tiết được hoàn toàn bộ, không có bồi thường tiền mặt. Mình chưa có thông tin tiền hoàn về đâu và mất bao lâu, nên chưa thể gửi yêu cầu; mình có thể chuyển nhân viên xác minh trước khi bạn quyết định.”
+
+**Người dùng thấy và làm tiếp:**
+
+| Vị trí / trạng thái | Nội dung người dùng thấy | Hành động và kết quả mong đợi |
+|---|---|---|
+| UI-05 — Chưa gửi hoàn | Câu AI trên; mã đặt chỗ và các hành khách để khách làm rõ phạm vi. | Khách có thể chọn người cần hoàn, nhưng việc chọn hoặc trả lời “đúng rồi” chưa kích hoạt gửi. |
+| UI-06 — Chính sách còn thiếu | Cảnh báo “Gửi rồi không huỷ được”; phần đã biết: hoàn toàn bộ do huỷ chuyến, không bồi thường tiền mặt; phần chưa biết: phương thức nhận tiền và thời gian xử lý. | Nút “Gửi yêu cầu hoàn” vô hiệu hoá, có giải thích cạnh nút. Tích ô đồng ý cũng không mở khoá khi dữ liệu còn thiếu. Không chỉ dùng màu để biểu đạt lỗi. |
+| UI-07 — Chọn đường tiếp | Hai nút “Chuyển nhân viên xác minh hoàn vé” và “Quay lại tìm chuyến”. | Chuyển người không đồng nghĩa gửi hoàn; quay lại không tự đổi vé. Giữ rõ trạng thái vé và chỗ đang giữ nếu có, không hứa thời hạn giữ chỗ được gia hạn. |
+
+Khi khách đã làm rõ muốn hoàn cho cả hai, dùng câu tiếp theo:
+
+> “Mình đã ghi nhận bạn muốn hoàn cho cả hai hành khách, nhưng chưa gửi yêu cầu hoàn. Thông tin nơi nhận tiền và thời gian xử lý vẫn chưa có; xác nhận này không bỏ qua bước xác minh.”
+
+Nếu khách không làm gì thì không gửi hoàn và không tự chuyển người chỉ vì im lặng. Nếu còn chỗ giữ từ luồng trước, chỗ đó vẫn hết hạn theo mốc giữ ban đầu; không tự gia hạn. Trong bản thiết kế hiện tại, S05 kết thúc an toàn ở chuyển nhân viên hoặc quay lại tìm chuyến; chưa có nhánh gửi hoàn thành công khi thiếu chính sách. Không mở rộng fixture để làm nhánh này trong Phần 3.
+
+**Ai được báo và khi nào:**
+
+- Khách được báo thiếu thông tin và chưa gửi ngay tại UI-05/UI-06.
+- Khi khách chọn chuyển, gọi luồng `chuyen_nhan_vien`; ngay khi có phản hồi thành công, hàng chờ mô phỏng nhận: TRV-7Q2K, chuyến huỷ do thời tiết, hành khách muốn hoàn (hoặc ghi rõ chưa xác nhận), nguyên văn yêu cầu, chính sách đã biết, hai trường còn thiếu, trạng thái chưa gửi hoàn và chỗ giữ/thời hạn nếu có.
+- Câu thành công: “Trong bản mô phỏng, yêu cầu xác minh đã vào hàng chờ nhân viên. Chưa gửi yêu cầu hoàn vé. Chưa có thời gian phản hồi được xác nhận.” Không hứa nhân viên đã đọc hoặc đã xử lý.
+- Không có SLA của nhân viên trong fixture, nên không đưa con số chờ 5 phút hoặc thời gian hoàn tiền giả định.
+
+**Quyết định và phương án loại:**
+
+| Phương án | Quyết định và lý do |
+|---|---|
+| Làm rõ phạm vi, trả lời có giới hạn, dừng gửi và chuyển người để xác minh | Chọn: chỉ hỏi lại tên người chưa giải quyết hai trường chính sách còn thiếu; cần người có thẩm quyền kiểm tra trước hành động không thể rút. |
+| Gửi ngay theo câu “hoàn tiền cho mình” | Loại: chưa rõ phạm vi, chưa giải thích đầy đủ hậu quả; gửi xong không huỷ được. |
+| Hiện cảnh báo và ô “tôi đồng ý”, rồi cho gửi dù thiếu chính sách | Loại: đồng ý khi thiếu thông tin không giúp khách đánh giá hậu quả; UI phải chặn thao tác, không chỉ chuyển trách nhiệm bằng câu chữ. |
+| Điền “về thẻ, tối đa 90 ngày” từ mẫu | Loại: không có căn cứ tương ứng trong fixture Bay Mẫu; có thể tạo cam kết sai. |
+| Từ chối toàn bộ nhu cầu hoàn | Loại: fixture cho phép hoàn toàn bộ; chuyển người giữ được hướng giải quyết hợp lệ mà không tự bịa dữ liệu. |
+
+### Khi chuyển người thất bại — UI-08, dùng chung hai ca
+
+Nếu tool chuyển thất bại, hiển thị:
+
+> “Chưa chuyển được yêu cầu tới nhân viên. Bạn có thể thử lại hoặc sao chép tóm tắt để tiếp tục yêu cầu hỗ trợ. Việc chuyển này chưa thực hiện đổi vé hoặc gửi hoàn.”
+
+Nút “Thử chuyển lại” chỉ thử chuyển, không gọi lại đổi/hoàn; nút “Sao chép tóm tắt” chỉ chứa dữ liệu dựng. Chỉ báo sao chép thành công sau khi thao tác thực sự thành công; nếu không sao chép được thì cho chọn văn bản thủ công. Không bịa hotline hoặc hứa nhân viên sẽ tự liên hệ. Nếu trước đó đã có thao tác đổi thì UI vẫn giữ trạng thái thực tế đã biết, không diễn đạt thất bại chuyển như đã khôi phục vé.
+
+### Loại lỗi quyết định cách nói và sửa
+
+| Loại lỗi | Áp dụng và căn cứ | Cách nói và cách sửa |
+|---|---|---|
+| Người dùng / đầu vào chưa đủ rõ | S03 thiếu chuyến/người; S05 dùng “hết” chưa rõ phạm vi. Đây là đầu vào thiếu để hành động, không phải lỗi đáng trách của khách. | Hỏi ngắn, đưa lựa chọn và hiện thông tin đã hiểu; không nói “bạn nhập sai” hoặc đòi khách chịu hậu quả của suy đoán AI. Chưa đổi/chưa gửi thì không nói xin lỗi như thể thao tác sai đã xảy ra. |
+| Hệ thống | Nếu AI tự đổi ở S03, tự gửi hoàn ở S05, hoặc nói đã chuyển khi tool chưa thành công, hệ thống đã hành động/báo trạng thái sai. | Nhận trách nhiệm khi đã xác minh, dừng thao tác tiếp và chuyển người để gỡ. Với S08 đã xác minh đổi nhầm: “Mình đã đổi nhầm sang BM 201 lúc 07:00. Mình xin lỗi. Dữ liệu hiện có không bảo đảm hoàn tác; mình sẽ chuyển yêu cầu cho nhân viên kiểm tra.” Chỉ nói đã chuyển sau kết quả thành công. |
+| Ngữ cảnh | Trong S03, hệ thống có thể chọn chuyến đủ chỗ và đúng chính sách nhưng 07:00 không phù hợp công việc của khách; trong S05, hoàn đủ tiền vẫn không giúp khách tới nơi kịp nếu “huỷ hết” là lời bực tức, chưa phải quyết định đã hiểu hậu quả. Đây là phân tích rủi ro, không khẳng định biết ý định ẩn của khách. | Không coi “đúng tool” là đủ. Cho khách kiểm tra chuyến/người, sửa lựa chọn, xem tác động và chọn đường khác trước khi cam kết. Không tự suy ra mục tiêu hoặc cảm xúc để gửi/đổi thay khách. |
+
+### Ba nguyên tắc HAX/PAIR và vị trí dự kiến
+
+| Nguyên tắc | Vị trí cụ thể | Hành vi có thể kiểm tra khi dựng prototype |
+|---|---|---|
+| HAX G10 — Thu hẹp phạm vi khi nghi ngờ | UI-01 câu “Bạn muốn chuyến nào, và đổi cho những ai?”; UI-06 chặn gửi do thiếu chính sách. | Câu “đổi đi” chưa làm thay đổi vé; “đúng rồi” chưa mở gửi hoàn khi thông tin vẫn thiếu. |
+| HAX G11 — Giải thích vì sao | UI-02 thẻ đặt chỗ/số chỗ/chính sách; UI-03 tác động lượt đổi; UI-06 liệt kê phần chính sách chưa biết. | Khách chỉ được dữ liệu dẫn đến lựa chọn hoặc giới hạn, không chỉ thấy nhãn “AI tự tin”. |
+| PAIR Errors + Graceful Failure — Có đường lui khi không làm tiếp được | UI-07 chuyển người/quay lại; UI-08 thông báo chuyển thất bại và thử lại/tóm tắt. | Không có ngõ cụt hoặc báo thành công giả; chuyển người giữ bối cảnh và không gửi hoàn thay khách. |
+
+Chỉ chọn ba nguyên tắc trên để đối chiếu và chấm; các nút sửa/hủy hỗ trợ trải nghiệm nhưng không tự thêm nguyên tắc thứ tư vào bài. Ảnh tại §5 minh hoạ một phần luồng S03, không phải bằng chứng cho toàn bộ UI-01–UI-08 hoặc kết quả R5.
+
+### Lỗi câu chữ không cứu được và cách thiết kế chặn lỗi
+
+1. **S03:** thêm “có thể mình hiểu nhầm” sau khi gọi `doi_chuyen_bay` không phục hồi lượt đổi. Cần chặn thực thi trước khi có tóm tắt cụ thể và xác nhận đúng lựa chọn; sửa lựa chọn phải làm mất hiệu lực xác nhận cũ. Đây phải là quy tắc thực thi khi xây prototype, không chỉ là một nút trông như bị khoá.
+2. **S05:** thêm “xin lỗi” sau khi gửi hoàn không thể rút yêu cầu. Cần chặn gửi khi phạm vi/chính sách chưa đủ, cho đường chuyển người; một checkbox không được vượt qua điều kiện dữ liệu còn thiếu. Không thiết kế nút “Huỷ yêu cầu hoàn” sau gửi vì tool không có khả năng này.
+
+### Bốn đường trải nghiệm và kiểm tra tài liệu R3
+
+| Đường | Thiết kế liên quan | Kết quả mong đợi, chưa kiểm thử đầy đủ |
+|---|---|---|
+| Bình thường | N01 → UI-03 → UI-04 | Chọn rõ chuyến/người, kiểm tra điều kiện và xác nhận; chỉ báo đổi sau thành công, không phải chờ nhân viên vô ích. |
+| Mơ hồ | S03 → UI-01 | Hỏi rõ, chưa đổi, có thể sửa hoặc gặp nhân viên. |
+| Thất bại / không căn cứ | S05 → UI-06/UI-07; lỗi chuyển → UI-08 | Không đoán chính sách hoặc báo đã chuyển; giữ đường quay lại/thử lại. |
+| Người dùng sửa AI | S03 trước gửi → “Sửa lựa chọn”; S08 sau đổi → xác minh và chuyển người | Trước đổi sửa được lựa chọn; sau đổi không giả vờ chỉ sửa thẻ là đã hoàn tác vé. |
+
+- R3 (6 điểm): hai ca có câu AI nguyên văn, UI, bước tiếp, người nhận và thời điểm thông báo theo sự kiện.
+- R3 (8 điểm): mỗi ca có lựa chọn, phương án loại và lập luận gắn hậu quả tool/dữ liệu.
+- R3 (5 điểm): ba nguyên tắc trỏ tới UI-01–UI-08; ảnh tại §5 chỉ minh hoạ một phần S03, không chứng minh đủ các vị trí hay hành vi.
+- R3 (3 điểm): phân biệt đầu vào thiếu, hệ thống sai và lệch ngữ cảnh; cách nói/sửa khác nhau.
+- R3 (3 điểm): hai ví dụ không cứu được bằng câu chữ và quy tắc chặn trước thao tác.
+- Đã tự đối chiếu nội dung thiết kế; chưa kết luận PASS hành vi hoặc nhận đủ 25 điểm. Prototype mới được kiểm tra trên trình duyệt đến màn duyệt S03, chưa bấm xác nhận đổi vé hoặc kiểm tra đầy đủ S05/các ca khác. Mức tự chủ đầy đủ chốt ở §4.
+
+---
 
 ## §4. MA TRẬN MỨC TỰ CHỦ (LEVELS OF AUTONOMY — CHẶNG 4 · MỐC M2 · 25 ĐIỂM)
 
@@ -130,6 +266,37 @@ Hệ thống nhận diện và bao phủ tối thiểu 8 kịch bản thuộc đ
 - **Ở Mức 3 (Tự làm toàn bộ + Hoàn tác):**  
   *"Chúng tôi tự động đổi vé ngay cho bạn; nếu không ưng ý, bạn có thể bấm hoàn tác."*  
   → *Đánh giá:* Lời hứa dối trá và vô trách nhiệm trong ngành hàng không, vì vé máy bay không thể hoàn tác tuỳ tiện.
+
+---
+
+## §5. PROTOTYPE
+
+### 5.1. File, công cụ và phạm vi mô phỏng
+- **File mở demo:** [`prototype/index.html`](prototype/index.html); chạy cục bộ bằng Chrome/Edge, hướng dẫn tại [`prototype/README.md`](prototype/README.md).
+- **Công cụ:** HTML, CSS và JavaScript thuần; dữ liệu mẫu trong `prototype/fixtures.js`, giao diện và luồng trong `prototype/app.js`. Không cần cài thư viện hay kết nối mạng.
+- **Phần mock:** đặt chỗ, hành khách, chính sách, số chỗ, phản hồi trợ lý, giữ chỗ 20 phút, nhật ký tool và hàng chờ nhân viên đều là dữ liệu/hành vi mô phỏng. Không có backend, API hãng bay hoặc giao dịch thật.
+- **AI thật:** không có lời gọi AI thật. Ô chat dùng quy tắc mô phỏng; nội dung trợ lý và nhật ký tool không phải kết quả từ model hay hệ thống hãng bay.
+
+### 5.2. Ảnh có đánh số — HAX/PAIR và mức tự chủ
+
+Ảnh được tạo từ prototype với tùy chọn “Hiện số HAX/PAIR”:
+- [Ảnh 1 — Làm rõ lựa chọn](prototype/evidence-01-clarify.png)
+- [Ảnh 2 — Kiểm tra và xác nhận](prototype/evidence-02-review.png)
+
+Trong prototype, **HAX G10** là hỏi lại/thu hẹp khi chưa rõ; **HAX G11** là hiển thị căn cứ và tác động; **PAIR Graceful Failure** là có đường chuyển nhân viên/thử lại (điểm ⑥ trong phần chú giải, không nằm trong hai ảnh này).
+
+| Số | Ảnh thể hiện | Nguyên tắc HAX/PAIR | Mức tự chủ |
+|---|---|---|---|
+| **1** | Sau câu “Ừ, đổi đi”, trợ lý nói chưa đổi vé và hỏi khách chọn chuyến nào, đổi cho ai. | **HAX G10:** hỏi lại thay vì suy diễn; giữ quyền chọn phương án của khách. | **Mức 2:** chỉ hỏi và đề xuất; chưa giữ chỗ hay đổi vé khi thiếu lựa chọn rõ. |
+| **2** | Căn cứ TRV-7Q2K/Bay Mẫu, chính sách và số chỗ fixture được đặt cạnh lựa chọn. | **HAX G11:** hiển thị nguồn căn cứ và tác động; tương ứng PAIR về giải thích thông tin để người dùng đánh giá. | **Mức 3** cho tra cứu chỉ-đọc; không cấp quyền thực hiện hành động. |
+| **3** | Thẻ kiểm tra đối chiếu chuyến cũ/mới, hành khách, chính sách và cảnh báo lượt đổi miễn phí trước nút xác nhận. | **HAX G11:** cho thấy thông tin và hệ quả; **PAIR — feedback & control:** khách có thể kiểm tra, sửa hoặc chủ động duyệt. | **Mức 2:** chỉ đổi sau xác nhận rõ ràng của khách. |
+| **4** | Trạng thái giữ chỗ, số hành khách và đồng hồ tự nhả sau 20 phút; có thể bỏ giữ. | **HAX G11:** trạng thái và thời hạn luôn hiển thị; **PAIR — feedback & control:** có cách bỏ thao tác tạm thời. | **Mức 3** chỉ cho giữ chỗ có điều kiện vì thao tác tạm thời, tự hết hạn/đảo ngược; không áp dụng cho đổi vé. |
+
+### 5.3. Quyết định về độ chắc, bằng chứng và điều khiển mức tự chủ
+- **Không dùng điểm % độ chắc giả tạo:** prototype xử lý theo quy tắc và fixture cố định, không có mô hình suy luận/độ tin cậy thực. Khi thiếu chuyến hoặc hành khách, giao diện nói rõ “Chưa đổi vé · Cần chọn rõ phương án” và hỏi lại.
+- **Bằng chứng và tác động:** hiển thị mã đặt chỗ, nguồn chính sách, số chỗ từ fixture; trước khi đổi, thẻ kiểm tra nêu chuyến, hành khách, lượt đổi miễn phí và cảnh báo rằng không bảo đảm hoàn tác.
+- **Điều khiển mức tự chủ:** “Điều khiển demo” chỉ chọn tình huống/lỗi để trình diễn, không phải công tắc trao quyền cho AI. Trong luồng khách, giữ chỗ tạm thời chỉ tự chạy khi đủ chỗ cho các hành khách đã chọn; khách có thể bỏ giữ. Đổi vé luôn chờ khách xác nhận; yêu cầu hoàn thiếu dữ liệu vẫn bị chặn và có đường chuyển nhân viên.
+- **Phương án đã cân nhắc:** tự động đổi toàn bộ rồi hứa “hoàn tác” bị loại vì đổi vé tiêu hao lượt miễn phí và không bảo đảm đảo ngược. Bắt khách duyệt trước cả bước giữ chỗ cũng bị loại vì có thể làm lỡ chỗ thay thế. Chọn phương án lai: tự giữ chỗ có thể tự nhả để giảm nguy cơ mất chỗ, nhưng dành quyết định đổi/hoàn cho khách để giữ quyền kiểm soát ở hành động có hậu quả lớn.
 
 ---
 

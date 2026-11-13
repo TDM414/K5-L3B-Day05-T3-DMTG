@@ -7,7 +7,7 @@ Thư mục này dành cho prototype và bằng chứng sẽ nộp:
 - `index.html`, `style.css`, `fixtures.js`, `app.js`: đã tạo, dùng HTML/CSS/JavaScript thuần, AI/tool mô phỏng. Không dependencies/CDN/backend.
 - `assets/saigon-skyline.jpg`: ảnh điểm đến lưu local để chạy offline.
 - `checks.cjs`: bộ kiểm tra logic/renderer bằng Node.js, không cần để mở frontend.
-- 1–2 ảnh có đánh số vị trí UI: tạo sau khi có prototype được kiểm tra, dùng để giải thích HAX/PAIR và mức tự chủ trong `spec.md` §5.
+- Ảnh minh hoạ có số UI: [evidence-01-clarify.png](evidence-01-clarify.png) làm rõ yêu cầu chưa đủ thông tin và căn cứ chính sách; [evidence-02-review.png](evidence-02-review.png) cho thấy giữ chỗ tạm thời, tóm tắt chuyến/hành khách và bước khách xác nhận trước khi đổi.
 - Log/ảnh AI thật chỉ bổ sung nếu nhóm duyệt làm bonus; bản bắt buộc dự kiến không gọi AI thật.
 
 Hai màn hình được thiết kế: A — Đặt chỗ & chọn phương án; B — Kiểm tra hành động & kết quả. Ca demo chính S03 là câu “Ừ, đổi đi” sau nhiều lựa chọn chưa rõ chuyến/người; ca phụ S05 là yêu cầu hoàn khi thiếu chính sách. Có điều khiển demo thu gọn để chọn ca, reset và thử hết hạn/lỗi, không bỏ qua xác nhận nghiệp vụ.
@@ -54,7 +54,7 @@ node checks.cjs
 
 Kết quả sau review: **37/37 kiểm tra logic/renderer DOM giả đạt**, gồm thông báo chưa gọi tool, chỉ mở trợ lý sau thao tác khách, chặn đổi mơ hồ, thiếu chỗ, trẻ bay riêng, tồn kho không trừ hai lần, duyệt một lần, hết hạn sát lúc xử lý, sửa lựa chọn, chặn gửi hoàn thiếu chính sách, lỗi chuyển/thử lại/mở lại ca cũ, kết quả đổi chưa rõ, trạng thái từng hành khách và hard tests qua chat. Kết quả lưu tại [verification.txt](verification.txt).
 
-**Phạm vi browser QA:** đã mở và quan sát thông báo huỷ trên Chrome desktop. Chưa bấm hết các ca sau sửa cuối, chưa kiểm tra mobile/bàn phím/clipboard vì người dùng dừng Computer Use. DOM giả không xác minh CSS hoặc thao tác native. Chưa tuyên bố M3/R5 đạt; vẫn cần 1–2 ảnh thật có đánh số theo checklist trong REVIEW.md.
+**Phạm vi browser QA:** đã mở prototype trên Chrome desktop, đi luồng S03 đến màn kiểm tra trước xác nhận và lưu hai ảnh có đánh số. Chưa bấm nút xác nhận đổi vé hoặc kiểm tra hết các ca; chưa kiểm tra mobile/bàn phím/clipboard. DOM giả không xác minh CSS hoặc thao tác native. Chưa tuyên bố M3/R5 đạt.
 
 Hạn chế: không tồn kho trực tiếp, không SLA nhân viên, không hiểu mọi câu tiếng Việt, không gửi hoàn thành công khi thiếu chính sách, không bảo đảm hoàn tác vé đã đổi và không tự tính mốc hết quyền 48 giờ khi fixture chưa chỉ rõ mốc bắt đầu.
 
