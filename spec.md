@@ -9,12 +9,12 @@
 
 ### BẢNG THÔNG TIN THÀNH VIÊN VÀ PHÂN CÔNG TRÁCH NHIỆM
 
-| STT | Họ và tên | Mã sinh viên | Tài khoản GitHub | Vai trò trong nhóm | Phần việc phụ trách chính trong Lab 5 |
-|:---:|---|:---:|:---:|---|---|
-| 1 | **Trần Duy Mạnh** | 2A202603998 | `TDM414` | Nhóm trưởng · Kiến trúc hệ thống | Chọn lát cắt; viết các tình huống người dùng và xác định hai ca AI sai nguy hiểm nhất. |
-| 2 | **Đinh Lê Thịnh** | 2A202603953 | `ThinkLee04` | Xếp từng hành động của AI vào “tự làm / cần người duyệt / cấm”; giải thích theo hậu quả nếu sai. |
-| 3 | **Nguyễn Xuân Dương** | 2A202603955 | `xuanduong2k5` | Thiết kế AI sẽ nói gì, người dùng thấy gì và có thể làm gì tiếp theo khi AI không chắc hoặc sai |
-| 4 | **Trần Thị Hồng Gấm** | 2A202603967 | `Honggam1109` | Dựng prototype 1–2 màn hình cho ca khó nhất; ghép các phần vào spec.md và chuẩn bị demo. |
+| STT | Họ và tên | Mã học viên | Việc đã làm |
+|:---:|---|:---:|---|---|
+| 1 | **Trần Duy Mạnh** | 2A202603998 | Chọn lát cắt; viết các tình huống người dùng và xác định hai ca AI sai nguy hiểm nhất. |
+| 2 | **Đinh Lê Thịnh** | 2A202603953 | Xếp từng hành động của AI vào “tự làm / cần người duyệt / cấm”; giải thích theo hậu quả nếu sai. |
+| 3 | **Nguyễn Xuân Dương** | 2A202603955 | Thiết kế AI sẽ nói gì, người dùng thấy gì và có thể làm gì tiếp theo khi AI không chắc hoặc sai |
+| 4 | **Trần Thị Hồng Gấm** | 2A202603967 | Dựng prototype 1–2 màn hình cho ca khó nhất; ghép các phần vào spec.md và chuẩn bị demo. |
 
 ---
 
